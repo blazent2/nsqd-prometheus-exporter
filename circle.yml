@@ -1,0 +1,39 @@
+
+general:
+  branches:
+    only:
+      - master
+
+machine:
+  services:
+    - docker
+
+dependencies:
+  override:
+    - echo "We get deps via gpm"
+
+database:
+  override:
+    - echo "override here since we don't need no stinking db"
+
+test:
+  override:
+    - docker build -t 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1 .
+
+deployment:
+  master:
+    branch: master
+    commands:
+      - sudo apt-get install python-dev
+      - sudo pip install --upgrade awscli
+      - aws configure set default.region us-west-2
+      - aws configure set default.output json
+      - eval `aws ecr get-login`
+      - docker tag 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BUILD_NUM
+      - docker tag 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BRANCH
+      - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1
+      - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BUILD_NUM
+      - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BRANCH
+      - docker images
+      - echo 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BRANCH is ready for use
+      - make publish-to-s3 VERSION=$(make get-version)

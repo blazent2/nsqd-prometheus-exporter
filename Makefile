@@ -1,4 +1,6 @@
-GOPATH = $(shell pwd)/go
+ifndef
+	GOPATH = ~/go
+endif
 GO = GOPATH=$(GOPATH) go
 
 PKG = .
