@@ -36,4 +36,3 @@ deployment:
       - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BRANCH
       - docker images
       - echo 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BRANCH is ready for use
-      - make publish-to-s3 VERSION=$(make get-version)
