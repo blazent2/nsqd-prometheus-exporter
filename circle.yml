@@ -19,20 +19,45 @@ database:
 test:
   override:
     - docker build -t 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1 .
+    - sudo apt-get install python-dev
+    - sudo pip install --upgrade awscli
+    - aws configure set default.region us-west-2
+    - aws configure set default.output json
+    - eval `aws ecr get-login`
 
 deployment:
+  release:
+    tag: /v[0-9]+(\.[0-9]+)*/
+    owner: blazent2
+    commands:
+      - docker tag 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BUILD_NUM
+      - docker tag 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_TAG
+      - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1
+      - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BUILD_NUM
+      - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_TAG
+      - docker images
+      - echo 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_TAG is ready for use
   master:
     branch: master
     commands:
-      - sudo apt-get install python-dev
-      - sudo pip install --upgrade awscli
-      - aws configure set default.region us-west-2
-      - aws configure set default.output json
-      - eval `aws ecr get-login`
       - docker tag 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BUILD_NUM
       - docker tag 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BRANCH
       - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1
-      - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BUILD_NUM
       - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BRANCH
+      - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BUILD_NUM
       - docker images
-      - echo 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BRANCH is ready for use
+      - echo 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_PROJECT_REPONAME is ready for use
+      - echo 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_PROJECT_REPONAME is ready for use
+      - echo 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_PROJECT_REPONAME is ready for use
+  staging:
+    branch: staging
+    commands:
+      - docker tag 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BUILD_NUM
+      - docker tag 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BRANCH
+      - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1
+      - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BRANCH
+      - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BUILD_NUM
+      - docker images
+      - echo 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_PROJECT_REPONAME is ready for use
+      - echo 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_PROJECT_REPONAME is ready for use
+      - echo 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_PROJECT_REPONAME is ready for use
