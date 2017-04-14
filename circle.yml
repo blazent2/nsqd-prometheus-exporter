@@ -2,7 +2,7 @@
 general:
   branches:
     only:
-      - master
+      - staging
 
 machine:
   services:
@@ -37,18 +37,6 @@ deployment:
       - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_TAG
       - docker images
       - echo 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_TAG is ready for use
-  master:
-    branch: master
-    commands:
-      - docker tag 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BUILD_NUM
-      - docker tag 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BRANCH
-      - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_SHA1
-      - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BRANCH
-      - docker push 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_BUILD_NUM
-      - docker images
-      - echo 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_PROJECT_REPONAME is ready for use
-      - echo 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_PROJECT_REPONAME is ready for use
-      - echo 992188498851.dkr.ecr.us-west-2.amazonaws.com/nsqd-prometheus-exporter:$CIRCLE_PROJECT_REPONAME is ready for use
   staging:
     branch: staging
     commands:

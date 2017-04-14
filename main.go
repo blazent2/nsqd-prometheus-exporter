@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -124,15 +125,18 @@ func main() {
 func fetchAndSetStats() {
 	for {
 		// Fetch stats
+		fmt.Println("Top of the loop")
 		stats, err := getNsqdStats(nsqdUrl)
 		if err != nil {
 			log.Fatal("Error scraping stats from nsqd: " + err.Error())
 		}
+		fmt.Println("Stats successfully scraped")
 
 		// Build list of detected topics and channels - the list of channels is built including the topic name that
 		// each belongs to, as it is possible to have multiple channels with the same name on different topics.
 		var detectedChannels []string
 		var detectedTopics []string
+		fmt.Println("Looking for dead topics")
 		for _, topic := range stats.Topics {
 			detectedTopics = append(detectedTopics, topic.Name)
 			for _, channel := range topic.Channels {
@@ -152,8 +156,10 @@ func fetchAndSetStats() {
 		knownTopics = detectedTopics
 		knownChannels = detectedChannels
 
+		fmt.Println("Setting metrics for: ")
 		// Loop through topics and set metrics
 		for _, topic := range stats.Topics {
+			fmt.Println("\t" + topic.Name)
 			paused := "false"
 			if topic.Paused {
 				paused = "true"
@@ -180,6 +186,7 @@ func fetchAndSetStats() {
 		}
 
 		// Scrape every scrapeInterval
+		fmt.Println("Finished... sleeping for " + strconv.Itoa(scrapeInterval))
 		time.Sleep(time.Duration(scrapeInterval) * time.Second)
 	}
 }
