@@ -91,7 +91,7 @@ func getNsqdStats(nsqdUrl string) (*stats, error) {
 	defer resp.Body.Close()
 
 	var stats stats
-	if err = json.NewDecoder(resp.Body).Decode(stats); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&stats); err != nil {
 		return nil, err
 	}
 	return &stats, nil
