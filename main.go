@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -14,8 +15,8 @@ import (
 var (
 	scrapeInterval       int
 	nsqdUrl              string
-	knownTopics          []string
-	knownChannels        []string
+	knownTopics          []nsqdStatsWithMetaData
+	knownChannels        []nsqdStatsWithMetaData
 	depthGaugeVec        *prometheus.GaugeVec
 	inFlightGaugeVec     *prometheus.GaugeVec
 	backendDepthGaugeVec *prometheus.GaugeVec
@@ -131,12 +132,12 @@ func fetchAndSetStats() {
 
 		// Build list of detected topics and channels - the list of channels is built including the topic name that
 		// each belongs to, as it is possible to have multiple channels with the same name on different topics.
-		var detectedChannels []string
-		var detectedTopics []string
+		var detectedChannels []nsqdStatsWithMetaData
+		var detectedTopics []nsqdStatsWithMetaData
 		for _, topic := range stats.Topics {
-			detectedTopics = append(detectedTopics, topic.Name)
+			detectedTopics = append(detectedTopics, nsqdStatsWithMetaData{Name: topic.Name, Paused: topic.Paused})
 			for _, channel := range topic.Channels {
-				detectedChannels = append(detectedChannels, topic.Name+channel.Name)
+				detectedChannels = append(detectedChannels, nsqdStatsWithMetaData{Name: fmt.Sprintf("%s%s", topic.Name, channel.Name), Paused: topic.Paused})
 			}
 		}
 
@@ -186,14 +187,19 @@ func fetchAndSetStats() {
 
 // deadTopicOrChannelExists loops through a list of known topic or channel names and compares them to a list
 // of detected names. If a known name no longer exists, it is deemed dead.
-func deadTopicOrChannelExists(known []string, detected []string) bool {
+func deadTopicOrChannelExists(known []nsqdStatsWithMetaData, detected []nsqdStatsWithMetaData) bool {
 	// Loop through all known names and check against detected names
-	for _, knownName := range known {
+	for _, knownNSQDWrapper := range known {
 		found := false
-		for _, detectedName := range detected {
-			if knownName == detectedName {
-				found = true
-				break
+		for _, detectedNSQDWrapper := range detected {
+			// First check if names match
+			if knownNSQDWrapper.Name == detectedNSQDWrapper.Name {
+				// Then check if paused matches
+				if knownNSQDWrapper.Paused == detectedNSQDWrapper.Paused {
+					// Same name same pause status --> true to continue
+					found = true
+					break
+				}
 			}
 		}
 		// If a topic/channel isn't found, it's dead

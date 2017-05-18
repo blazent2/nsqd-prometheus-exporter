@@ -35,6 +35,17 @@ import (
 	"net/http"
 )
 
+type nsqdStatsWithMetaData struct {
+	Name   string
+	Paused bool
+}
+
+type statsWrapper struct {
+	StatusCode int    `json:"status_code"`
+	StatusTxt  string `json:"status_txt"`
+	Data       stats  `json:"data"`
+}
+
 type stats struct {
 	Version   string   `json:"version"`
 	Health    string   `json:"health"`
@@ -90,9 +101,9 @@ func getNsqdStats(nsqdUrl string) (*stats, error) {
 	}
 	defer resp.Body.Close()
 
-	var stats stats
-	if err = json.NewDecoder(resp.Body).Decode(&stats); err != nil {
+	var statsWrapper statsWrapper
+	if err = json.NewDecoder(resp.Body).Decode(&statsWrapper); err != nil {
 		return nil, err
 	}
-	return &stats, nil
+	return &statsWrapper.Data, nil
 }

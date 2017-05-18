@@ -13,7 +13,7 @@ VERSION = $(shell ./$(BIN) --version | cut -d" " -f 3)
 default: fmt deps test build
 
 all: build
-build: fmt deps
+build: fmt
 	$(GO) build -a -o $(BIN) $(PKG)
 lint: vet
 vet: deps
@@ -34,7 +34,7 @@ deps:
 	chmod 755 gpm.sh
 	GOPATH=$(GOPATH) ./gpm.sh
 	rm gpm.sh
-test-deps: deps
+test-deps:
 	$(GO) get -d -t $(PKG)
 	$(GO) test -a -i $(PKG)
 install:
